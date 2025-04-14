@@ -37,7 +37,7 @@
 
 - name: Set up Git repository for application
   git:
-    repo: "https://github.com/{{ lookup('env', 'GITHUB_OWNER') }}/{{ app_name }}.git"
+    repo: "https://github.com/cstella84/terraform-ansible-example.git"
     dest: "/var/www/{{ app_name }}"
     version: main
   become: yes
