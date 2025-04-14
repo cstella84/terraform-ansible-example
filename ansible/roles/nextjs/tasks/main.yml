@@ -19,6 +19,12 @@
     global: yes
     state: present
 
+- name: Install pnpm globally
+  npm:
+    name: pnpm
+    global: yes
+    state: present
+
 - name: Create application directory
   file:
     path: "/var/www/{{ app_name }}"
@@ -38,10 +44,19 @@
 - name: Set up Git repository for application
   git:
     repo: "https://github.com/cstella84/terraform-ansible-example.git"
-    dest: "/var/www/{{ app_name }}"
+    dest: "/tmp/checkout"
     version: main
   become: yes
   become_user: app
+
+- name: Copy application files
+  copy:
+    src: "/tmp/checkout/sample-app/"
+    dest: "/var/www/{{ app_name }}"
+    owner: app
+    group: www-data
+    mode: '0755'
+  become: yes
 
 - name: Configure Nginx for Next.js
   template:
@@ -57,6 +72,11 @@
     src: "/etc/nginx/sites-available/{{ app_name }}"
     dest: "/etc/nginx/sites-enabled/{{ app_name }}"
     state: link
+
+- name: Remove default Nginx site
+  file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
   notify: restart nginx
 
 - name: Create environment file template
