@@ -46,12 +46,21 @@ source "amazon-ebs" "ubuntu" {
 }
 
 build {
+  hcp_packer_registry {
+    bucket_name = "base-ubuntu"
+    description = "Base Ubuntu AMI with security hardening"
+
+    bucket_labels = {
+      "os" = "ubuntu"
+    }
+  }
+
   name = "hardened-ubuntu"
   sources = [
     "source.amazon-ebs.ubuntu"
   ]
   
   provisioner "ansible" {
-    playbook_file = "../ansible/playbooks/hardening.yml"
+    playbook_file = "./ansible/hardening.yml"
   }
 }
