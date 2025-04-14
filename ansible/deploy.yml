@@ -23,7 +23,7 @@
         
   roles:
     # Load the appropriate role based on app_type
-    - role: "{{ app_type }}"
+    - role: "nextjs"
       when: app_type == "nextjs"
       
     - role: "express"
