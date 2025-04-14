@@ -13,25 +13,12 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Retrieve the latest AMI ID for our hardened image
-data "aws_ami" "hardened_ami" {
-  most_recent = true
-  owners      = ["self"]
-
-  filter {
-    name   = "name"
-    values = ["hardened-base-*"]
-  }
-
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
+# Get latest AMI ID from HCP Packer bucket
+data "hcp_packer_artifact" "base-ubuntu" {
+  bucket_name   = "base-ubuntu"
+  channel_name  = "latest"
+  platform      = "aws"
+  region        = "us-west-2"
 }
 
 # Create VPC
@@ -98,7 +85,7 @@ resource "aws_security_group" "app_sg" {
 
 # EC2 Instance
 resource "aws_instance" "app_server" {
-  ami                         = data.aws_ami.hardened_ami.id
+  ami                         = data.hcp_packer_artifact.base-ubuntu.external_identifier
   instance_type               = var.instance_type
   subnet_id                   = module.vpc.public_subnets[0]
   vpc_security_group_ids      = [aws_security_group.app_sg.id]
