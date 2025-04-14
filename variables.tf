@@ -6,7 +6,11 @@ variable "app_name" {
 variable "app_type" {
   description = "Application framework type"
   type        = string
-  default     = "nextjs"
+
+  validation {
+    condition     = contains(["django", "express", "flask", "nextjs", "react"], var.app_type)
+    error_message = "app_type must be one of 'django', 'express', 'flask', 'nextjs', or 'react'."
+  }
 }
 
 variable "aws_region" {
