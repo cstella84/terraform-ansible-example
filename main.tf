@@ -122,7 +122,7 @@ resource "aws_instance" "app_server" {
 
   # Copy Ansible playbooks to the instance
   provisioner "file" {
-    source      = "./ansible/"
+    source      = "./ansible/deploy/"
     destination = "/home/ubuntu/ansible-playbooks"
   }
 

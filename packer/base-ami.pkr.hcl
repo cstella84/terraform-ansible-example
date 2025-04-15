@@ -61,6 +61,6 @@ build {
   ]
   
   provisioner "ansible" {
-    playbook_file = "./ansible/hardening.yml"
+    playbook_file = "../ansible/packer/hardening.yml"
   }
 }
