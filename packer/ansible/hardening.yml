@@ -1,0 +1,75 @@
+---
+- name: Harden base AMI
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+        
+    - name: Install security packages
+      apt:
+        name:
+          - fail2ban
+          - unattended-upgrades
+          - ufw
+        state: present
+
+    - name: Install other packages
+      apt:
+        name:
+          - ansible
+        state: present
+
+    - name: Configure automatic security updates
+      template:
+        src: templates/20auto-upgrades.j2
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        owner: root
+        group: root
+        mode: '0644'
+        
+    - name: Enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+        
+    - name: Allow SSH through firewall
+      ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+        
+    - name: Allow HTTP through firewall
+      ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+        
+    - name: Allow HTTPS through firewall
+      ufw:
+        rule: allow
+        port: '443'
+        proto: tcp
+        
+    - name: Create application user
+      user:
+        name: app
+        shell: /bin/bash
+        create_home: yes
+        groups: sudo
+        append: yes
+        
+    - name: Set up sudo without password for app user
+      lineinfile:
+        path: /etc/sudoers.d/app
+        state: present
+        line: 'app ALL=(ALL) NOPASSWD:ALL'
+        validate: 'visudo -cf %s'
+        create: yes
+        mode: 0440
